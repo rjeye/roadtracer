@@ -1,7 +1,7 @@
 import numpy
-from PIL import Image
-import scipy.ndimage
+import cv2 
 import sys
+
 
 path = sys.argv[1]
 region = sys.argv[2]
@@ -16,9 +16,13 @@ y_len = y_end - y_start
 
 merged_im = numpy.zeros((x_len * 4096, y_len * 4096, 3), dtype='uint8')
 
-for i in xrange(x_len):
-	for j in xrange(y_len):
+for i in range(x_len):
+	for j in range(y_len):
 		fname = '{}/{}_{}_{}_sat.png'.format(path, region, x_start + i, y_start + j)
-		merged_im[i*4096:(i+1)*4096, j*4096:(j+1)*4096, :] = scipy.ndimage.imread(fname)[:, :, 0:3].swapaxes(0, 1)
+		image_patch = cv2.imread(fname, cv2.IMREAD_COLOR)[:, :, 0:3].swapaxes(0, 1)
+		merged_im[i*4096:(i+1)*4096, j*4096:(j+1)*4096, :] = image_patch
 
-Image.fromarray(merged_im.swapaxes(0, 1)).save(out_fname)
+merged_im = merged_im.swapaxes(0, 1)
+cv2.imwrite(out_fname, merged_im)
+
+
